@@ -105,6 +105,98 @@
 
       <div class="card border-0 shadow-sm mt-4">
         <div class="card-body p-4">
+          <h2 class="h5 text-uppercase text-muted mb-4">SSL/TLS Certificate</h2>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="info-box">
+                <small class="text-uppercase text-muted">HTTPS Status</small>
+                <div class="mt-2">
+                  {% if ssl_result.get('is_https') %}
+                    <span class="badge bg-success rounded-pill">HTTPS</span>
+                  {% else %}
+                    <span class="badge bg-secondary rounded-pill">Not HTTPS</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="info-box">
+                <small class="text-uppercase text-muted">Certificate Present</small>
+                <div class="mt-2">
+                  {% if ssl_result.get('certificate_present') %}
+                    <span class="badge bg-success rounded-pill">Yes</span>
+                  {% else %}
+                    <span class="badge bg-secondary rounded-pill">No</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            {% if ssl_result.get('certificate_present') %}
+              <div class="col-md-6">
+                <div class="info-box">
+                  <small class="text-uppercase text-muted">Subject</small>
+                  <div class="fw-semibold mt-2 text-light">{{ ssl_result.get('subject') or 'N/A' }}</div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="info-box">
+                  <small class="text-uppercase text-muted">Issuer</small>
+                  <div class="fw-semibold mt-2 text-light">{{ ssl_result.get('issuer') or 'N/A' }}</div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="info-box">
+                  <small class="text-uppercase text-muted">Valid From</small>
+                  <div class="fw-semibold mt-2 text-light">{{ ssl_result.get('valid_from') or 'N/A' }}</div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="info-box">
+                  <small class="text-uppercase text-muted">Valid Until</small>
+                  <div class="fw-semibold mt-2 text-light">{{ ssl_result.get('valid_until') or 'N/A' }}</div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="info-box">
+                  <small class="text-uppercase text-muted">Days Remaining</small>
+                  <div class="fw-semibold mt-2 text-light">{{ ssl_result.get('days_remaining') if ssl_result.get('days_remaining') is not none else 'N/A' }}</div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="info-box">
+                  <small class="text-uppercase text-muted">Certificate Validity</small>
+                  <div class="mt-2">
+                    {% if ssl_result.get('is_valid') %}
+                      <span class="badge bg-success rounded-pill">Valid</span>
+                    {% else %}
+                      <span class="badge bg-danger rounded-pill">Expired</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+
+            {% if ssl_result.get('error') %}
+              <div class="col-12">
+                <div class="alert alert-warning mb-0" role="alert">
+                  <strong>Certificate Check:</strong> {{ ssl_result.get('error') }}
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4">
           <h2 class="h5 text-uppercase text-muted mb-4">Security Headers</h2>
 
           {% if header_results %}

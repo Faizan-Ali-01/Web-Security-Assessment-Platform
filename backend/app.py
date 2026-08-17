@@ -3,6 +3,7 @@ from flask import Flask, render_template, request
 
 from scanner.headers_checker import analyze_security_headers
 from scanner.http_checker import check_website_url
+from scanner.ssl_checker import check_ssl_certificate
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 TEMPLATE_DIR = os.path.join(BASE_DIR, "frontend", "templates")
@@ -35,7 +36,9 @@ def scan():
     else:
         header_results = []
 
-    return render_template("results.html", result=result, header_results=header_results)
+    ssl_result = check_ssl_certificate(website_url)
+
+    return render_template("results.html", result=result, header_results=header_results, ssl_result=ssl_result)
 
 
 if __name__ == "__main__":
