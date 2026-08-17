@@ -49,6 +49,46 @@
         </div>
       </div>
 
+      <div class="row g-4 mt-2">
+        <div class="col-md-12">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-4">
+              <h2 class="h5 text-uppercase text-muted mb-4">Security Assessment Score</h2>
+              <div class="row g-3 align-items-center">
+                <div class="col-md-4">
+                  <div class="text-center">
+                    <div class="fs-1 fw-bold text-light mb-2">{{ security_score }}</div>
+                    <div class="text-muted">Out of 100</div>
+                  </div>
+                </div>
+                <div class="col-md-8">
+                  <div class="mb-3">
+                    <small class="text-uppercase text-muted">Overall Rating</small>
+                    <div class="mt-2">
+                      {% if score_rating == 'Excellent' %}
+                        <span class="badge bg-success rounded-pill fs-6">{{ score_rating }}</span>
+                      {% elif score_rating == 'Good' %}
+                        <span class="badge bg-info rounded-pill fs-6">{{ score_rating }}</span>
+                      {% elif score_rating == 'Fair' %}
+                        <span class="badge bg-warning rounded-pill fs-6">{{ score_rating }}</span>
+                      {% elif score_rating == 'Poor' %}
+                        <span class="badge bg-warning text-dark rounded-pill fs-6">{{ score_rating }}</span>
+                      {% else %}
+                        <span class="badge bg-danger rounded-pill fs-6">{{ score_rating }}</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div>
+                    <small class="text-uppercase text-muted">Findings</small>
+                    <div class="mt-2 fw-semibold text-light">{{ findings|length }} issue(s) identified</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="card border-0 shadow-sm mt-4">
         <div class="card-body p-4">
           <h2 class="h5 text-uppercase text-muted mb-4">Website Check Details</h2>
@@ -197,6 +237,47 @@
 
       <div class="card border-0 shadow-sm mt-4">
         <div class="card-body p-4">
+          <h2 class="h5 text-uppercase text-muted mb-4">Information Exposure</h2>
+
+          {% if exposure_results %}
+            {% for observation in exposure_results %}
+              <div class="card border-0 mb-3" style="background-color: rgba(255, 255, 255, 0.05);">
+                <div class="card-body p-3">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                      <h3 class="h6 mb-1 text-light">{{ observation.header }}</h3>
+                      <small class="text-muted">{{ observation.type }}</small>
+                    </div>
+                    <span class="badge bg-warning text-dark rounded-pill">{{ observation.severity|upper }}</span>
+                  </div>
+
+                  <div class="mb-2">
+                    <small class="text-uppercase text-muted"><strong>Value</strong></small>
+                    <div class="mt-1 text-light" style="word-break: break-word; font-family: monospace; font-size: 0.875rem;">{{ observation.value }}</div>
+                  </div>
+
+                  <div class="mb-2">
+                    <small class="text-uppercase text-muted"><strong>Description</strong></small>
+                    <div class="mt-1 text-light">{{ observation.description }}</div>
+                  </div>
+
+                  <div>
+                    <small class="text-uppercase text-muted"><strong>Recommendation</strong></small>
+                    <div class="mt-1 text-light">{{ observation.recommendation }}</div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="alert alert-info mb-0" role="alert">
+              No information exposure indicators detected.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4">
           <h2 class="h5 text-uppercase text-muted mb-4">Security Headers</h2>
 
           {% if header_results %}
@@ -231,6 +312,58 @@
           {% else %}
             <div class="alert alert-secondary mb-0" role="alert">
               No security header results available because the HTTP request failed.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4">
+          <h2 class="h5 text-uppercase text-muted mb-4">Security Findings</h2>
+
+          {% if findings %}
+            {% for finding in findings %}
+              <div class="card border-0 mb-3" style="background-color: rgba(255, 255, 255, 0.05);">
+                <div class="card-body p-3">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h3 class="h6 mb-0 text-light">{{ finding.title }}</h3>
+                    {% if finding.severity == 'high' %}
+                      <span class="badge bg-danger rounded-pill">{{ finding.severity|upper }}</span>
+                    {% elif finding.severity == 'medium' %}
+                      <span class="badge bg-warning text-dark rounded-pill">{{ finding.severity|upper }}</span>
+                    {% elif finding.severity == 'low' %}
+                      <span class="badge bg-info text-dark rounded-pill">{{ finding.severity|upper }}</span>
+                    {% else %}
+                      <span class="badge bg-secondary rounded-pill">{{ finding.severity|upper }}</span>
+                    {% endif %}
+                  </div>
+
+                  <div class="row g-2 mb-2 small">
+                    <div class="col-md-6">
+                      <small class="text-muted"><strong>Category:</strong> {{ finding.category }}</small>
+                    </div>
+                  </div>
+
+                  <div class="mb-2">
+                    <small class="text-uppercase text-muted"><strong>Description</strong></small>
+                    <div class="mt-1 text-light">{{ finding.description }}</div>
+                  </div>
+
+                  <div class="mb-2">
+                    <small class="text-uppercase text-muted"><strong>Evidence</strong></small>
+                    <div class="mt-1 text-light" style="word-break: break-word;">{{ finding.evidence }}</div>
+                  </div>
+
+                  <div>
+                    <small class="text-uppercase text-muted"><strong>Recommendation</strong></small>
+                    <div class="mt-1 text-light">{{ finding.recommendation }}</div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="alert alert-success mb-0" role="alert">
+              <strong>Great news!</strong> No security weaknesses were identified by the current assessment checks.
             </div>
           {% endif %}
         </div>
