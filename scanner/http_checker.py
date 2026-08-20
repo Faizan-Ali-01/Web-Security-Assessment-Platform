@@ -1,9 +1,6 @@
 from __future__ import annotations
-
 from urllib.parse import urlparse
-
 import requests
-
 
 def _normalize_url(url: str) -> str:
     if not isinstance(url, str):

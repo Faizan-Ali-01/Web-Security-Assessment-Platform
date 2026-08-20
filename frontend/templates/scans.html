@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Scan History | Web Security Assessment Platform{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 mb-1 text-light">Scan History</h1>
+      <p class="text-muted mb-0">Review completed security assessments.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <form method="post" action="{{ url_for('clear_scans_route') }}" onsubmit="return confirm('Clear all scan history and findings?');">
+        <button type="submit" class="btn btn-outline-danger">Clear History</button>
+      </form>
+      <a href="{{ url_for('home') }}" class="btn btn-danger">New Assessment</a>
+    </div>
+  </div>
+
+  <section class="card recent-scans-card">
+    <div class="card-body p-4">
+      {% if scans %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th scope="col">Scan ID</th>
+                <th scope="col">Target URL</th>
+                <th scope="col">Final URL</th>
+                <th scope="col">Status Code</th>
+                <th scope="col">Security Score</th>
+                <th scope="col">Rating</th>
+                <th scope="col">Finding Count</th>
+                <th scope="col">Scan Date</th>
+                <th scope="col"><span class="visually-hidden">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for scan in scans %}
+                <tr>
+                  <td>{{ scan.id }}</td>
+                  <td class="text-break">{{ scan.target_url }}</td>
+                  <td class="text-break">{{ scan.final_url or 'N/A' }}</td>
+                  <td>{{ scan.status_code if scan.status_code is not none else 'N/A' }}</td>
+                  <td>{{ scan.score if scan.score is not none else 'N/A' }}</td>
+                  <td>{{ scan.rating or 'N/A' }}</td>
+                  <td>{{ scan.finding_count or 0 }}</td>
+                  <td>{{ scan.scan_date }}</td>
+                  <td class="text-end">
+                    <div class="d-flex justify-content-end gap-2">
+                      <a href="{{ url_for('view_scan', scan_id=scan.id) }}" class="btn btn-outline-light btn-sm">View</a>
+                      <form method="post" action="{{ url_for('delete_scan_route', scan_id=scan.id) }}" onsubmit="return confirm('Delete this scan and its findings?');">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="alert alert-info mb-0" role="alert">
+          No scans are available yet. Start a new security assessment to build your scan history.
+        </div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

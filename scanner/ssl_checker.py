@@ -1,10 +1,3 @@
-"""
-SSL/TLS Certificate Inspector Module
-
-Safely inspects the SSL/TLS certificate of an HTTPS website using Python's standard library.
-Extracts certificate metadata with certificate verification enabled.
-"""
-
 import ssl
 import socket
 import datetime
@@ -13,28 +6,6 @@ from typing import Dict, Any, Optional
 
 
 def check_ssl_certificate(url: str, timeout: int = 10) -> Dict[str, Any]:
-    """
-    Inspects the TLS certificate of an HTTPS website using a single connection.
-
-    Args:
-        url (str): The website URL to check (e.g., "https://example.com").
-        timeout (int): Connection timeout in seconds (default: 10).
-
-    Returns:
-        Dict[str, Any]: A dictionary containing:
-            - is_https (bool): Whether the URL is HTTPS.
-            - certificate_present (bool): Whether a certificate was retrieved.
-            - subject (str): Certificate subject (CN).
-            - issuer (str): Certificate issuer (CN).
-            - valid_from (str): Certificate valid-from date (ISO format).
-            - valid_until (str): Certificate valid-until date (ISO format).
-            - days_remaining (int): Days until certificate expiration.
-            - is_valid (bool): Whether the certificate is currently valid.
-            - error (Optional[str]): Error message if any occurred.
-
-    Raises:
-        No exceptions are raised; all errors are captured in the returned dictionary.
-    """
     result: Dict[str, Any] = {
         "is_https": False,
         "certificate_present": False,
@@ -73,15 +44,12 @@ def check_ssl_certificate(url: str, timeout: int = 10) -> Dict[str, Any]:
 
         port = parsed.port or 443
 
-        # Create an SSL context with certificate verification enabled
         context = ssl.create_default_context()
 
-        # Single connection: retrieve certificate with SNI enabled
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.settimeout(timeout)
             with context.wrap_socket(sock, server_hostname=hostname) as ssock:
                 ssock.connect((hostname, port))
-                # Get the certificate dictionary
                 cert_dict = ssock.getpeercert()
 
         if not cert_dict:

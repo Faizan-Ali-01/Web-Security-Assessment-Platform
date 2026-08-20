@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Scan {{ scan.id }} | Web Security Assessment Platform{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 mb-1 text-light">Scan Report #{{ scan.id }}</h1>
+      <p class="text-muted mb-0">Stored security assessment details.</p>
+    </div>
+    <a href="{{ url_for('scans') }}" class="btn btn-outline-light">Back to Scans</a>
+  </div>
+
+  <section class="card mb-4">
+    <div class="card-body p-4">
+      <h2 class="h5 text-uppercase text-muted mb-4">Assessment Summary</h2>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="info-box h-100">
+            <small class="text-uppercase text-muted">Target URL</small>
+            <div class="mt-2 text-light text-break">{{ scan.target_url }}</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="info-box h-100">
+            <small class="text-uppercase text-muted">Final URL</small>
+            <div class="mt-2 text-light text-break">{{ scan.final_url or 'N/A' }}</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="info-box h-100">
+            <small class="text-uppercase text-muted">Status Code</small>
+            <div class="mt-2 fw-semibold text-light">{{ scan.status_code if scan.status_code is not none else 'N/A' }}</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="info-box h-100">
+            <small class="text-uppercase text-muted">Scan Status</small>
+            <div class="mt-2">
+              {% if scan.rating == 'Failed' %}
+                <span class="badge bg-danger rounded-pill">Failed</span>
+              {% else %}
+                <span class="badge bg-success rounded-pill">Success</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="info-box h-100">
+            <small class="text-uppercase text-muted">Security Score</small>
+            <div class="mt-2 fw-semibold text-light">{{ scan.score if scan.score is not none else '—' }}</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="info-box h-100">
+            <small class="text-uppercase text-muted">Rating</small>
+            <div class="mt-2 fw-semibold text-light">{{ scan.rating or 'N/A' }}</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="info-box h-100">
+            <small class="text-uppercase text-muted">Scan Date</small>
+            <div class="mt-2 fw-semibold text-light text-break">{{ scan.scan_date }}</div>
+          </div>
+        </div>
+      </div>
+      {% if scan.rating == 'Failed' %}
+        <div class="alert alert-danger mt-4 mb-0" role="alert">
+          <strong>Error:</strong> The HTTP check did not reach the target successfully.
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-body p-4">
+      <h2 class="h5 text-uppercase text-muted mb-4">Findings</h2>
+      {% if severity_groups|selectattr('findings')|list %}
+        {% for group in severity_groups %}
+          {% if group.findings %}
+            <div class="severity-group severity-group--{{ group.class_name }} mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="h6 mb-0 text-light">{{ group.label }}</h3>
+                <span class="badge bg-secondary rounded-pill">{{ group.findings|length }}</span>
+              </div>
+              {% for finding in group.findings %}
+                <article class="finding-card mb-3">
+                  <h4 class="h6 text-light mb-2">{{ finding.title }}</h4>
+                  {% if finding.category %}<div class="small text-muted mb-2">{{ finding.category }}</div>{% endif %}
+                  <div class="mb-2 text-light text-break"><strong>Description:</strong> {{ finding.description or 'N/A' }}</div>
+                  <div class="mb-2 text-light text-break"><strong>Evidence:</strong> {{ finding.evidence or 'N/A' }}</div>
+                  <div class="text-light text-break"><strong>Recommendation:</strong> {{ finding.recommendation or 'N/A' }}</div>
+                </article>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <div class="alert alert-success mb-0" role="alert">No findings were recorded for this scan.</div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

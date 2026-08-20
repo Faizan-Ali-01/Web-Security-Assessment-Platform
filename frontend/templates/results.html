@@ -1,25 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Scan Results | Web Security Assessment Platform</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-      crossorigin="anonymous"
-    />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-  </head>
-  <body class="results-page">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-      <div class="container">
-        <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">Web Security Assessment Platform</a>
-      </div>
-    </nav>
+{% extends "base.html" %}
 
-    <main class="container py-5">
+{% block title %}Scan Results | Web Security Assessment Platform{% endblock %}
+{% block body_class %}results-page{% endblock %}
+{% block content %}
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0 text-light">Security Assessment Results</h1>
         <a href="{{ url_for('home') }}" class="btn btn-outline-light">Back to Dashboard</a>
@@ -38,11 +21,11 @@
         <div class="col-md-6">
           <div class="card h-100 border-0 shadow-sm">
             <div class="card-body p-4">
-              <h2 class="h5 text-uppercase text-muted mb-3">Status</h2>
+              <h2 class="h5 text-uppercase text-muted mb-3">Scan Status</h2>
               {% if result.get('ok') %}
                 <span class="badge bg-success rounded-pill fs-6">Success</span>
               {% else %}
-                <span class="badge bg-warning text-dark rounded-pill fs-6">Check Failed</span>
+                <span class="badge bg-danger rounded-pill fs-6">Failed</span>
               {% endif %}
             </div>
           </div>
@@ -57,7 +40,7 @@
               <div class="row g-3 align-items-center">
                 <div class="col-md-4">
                   <div class="text-center">
-                    <div class="fs-1 fw-bold text-light mb-2">{{ security_score }}</div>
+                    <div class="fs-1 fw-bold text-light mb-2">{{ security_score if security_score is not none else '—' }}</div>
                     <div class="text-muted">Out of 100</div>
                   </div>
                 </div>
@@ -65,7 +48,9 @@
                   <div class="mb-3">
                     <small class="text-uppercase text-muted">Overall Rating</small>
                     <div class="mt-2">
-                      {% if score_rating == 'Excellent' %}
+                      {% if not result.get('ok') %}
+                        <span class="badge bg-danger rounded-pill fs-6">Failed</span>
+                      {% elif score_rating == 'Excellent' %}
                         <span class="badge bg-success rounded-pill fs-6">{{ score_rating }}</span>
                       {% elif score_rating == 'Good' %}
                         <span class="badge bg-info rounded-pill fs-6">{{ score_rating }}</span>
@@ -319,6 +304,82 @@
 
       <div class="card border-0 shadow-sm mt-4">
         <div class="card-body p-4">
+          <h2 class="h5 text-uppercase text-muted mb-4">HTTP Methods</h2>
+
+          {% if method_results %}
+            {% for observation in method_results %}
+              <div class="card border-0 mb-3" style="background-color: rgba(255, 255, 255, 0.05);">
+                <div class="card-body p-3">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h3 class="h6 mb-0 text-light">{{ observation.method }}</h3>
+                    {% if observation.severity == 'low' %}
+                      <span class="badge bg-info text-dark rounded-pill">{{ observation.severity|upper }}</span>
+                    {% else %}
+                      <span class="badge bg-secondary rounded-pill">{{ observation.severity|upper }}</span>
+                    {% endif %}
+                  </div>
+
+                  <div class="mb-2">
+                    <small class="text-uppercase text-muted"><strong>Description</strong></small>
+                    <div class="mt-1 text-light">{{ observation.description }}</div>
+                  </div>
+
+                  <div>
+                    <small class="text-uppercase text-muted"><strong>Recommendation</strong></small>
+                    <div class="mt-1 text-light">{{ observation.recommendation }}</div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="alert alert-info mb-0" role="alert">
+              No advertised HTTP methods detected.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4">
+          <h2 class="h5 text-uppercase text-muted mb-4">Technology Indicators</h2>
+
+          {% if technology_results %}
+            {% for technology in technology_results %}
+              <div class="card border-0 mb-3" style="background-color: rgba(255, 255, 255, 0.05);">
+                <div class="card-body p-3">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h3 class="h6 mb-0 text-light">{{ technology.technology }}</h3>
+                    <span class="badge bg-secondary rounded-pill">{{ technology.confidence|upper }}</span>
+                  </div>
+
+                  <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                      <small class="text-uppercase text-muted"><strong>Source</strong></small>
+                      <div class="mt-1 text-light">{{ technology.source }}</div>
+                    </div>
+                    <div class="col-md-6">
+                      <small class="text-uppercase text-muted"><strong>Evidence</strong></small>
+                      <div class="mt-1 text-light" style="word-break: break-word;">{{ technology.evidence }}</div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <small class="text-uppercase text-muted"><strong>Description</strong></small>
+                    <div class="mt-1 text-light">{{ technology.description }}</div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="alert alert-info mb-0" role="alert">
+              No technology indicators detected.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4">
           <h2 class="h5 text-uppercase text-muted mb-4">Security Findings</h2>
 
           {% if findings %}
@@ -363,11 +424,106 @@
             {% endfor %}
           {% else %}
             <div class="alert alert-success mb-0" role="alert">
-              <strong>Great news!</strong> No security weaknesses were identified by the current assessment checks.
+              {% if result.get('ok') %}
+                <strong>Great news!</strong> No security weaknesses were identified by the current assessment checks.
+              {% else %}
+                No security findings were generated because the HTTP check failed.
+              {% endif %}
             </div>
           {% endif %}
         </div>
       </div>
-    </main>
-  </body>
-</html>
+
+      <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4">
+          <h2 class="h5 text-uppercase text-muted mb-4">Cookie Security</h2>
+
+          {% if cookie_results %}
+            {% for cookie in cookie_results %}
+              <div class="cookie-card text-break {% if cookie.issues %}cookie-card--has-issues{% else %}cookie-card--secure{% endif %}">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div class="flex-grow-1 text-break">
+                    <h3 class="h6 mb-1 text-light text-break">{{ cookie.name }}</h3>
+                  </div>
+                  {% if cookie.severity == 'high' %}
+                    <span class="badge bg-danger rounded-pill flex-shrink-0 ms-2">{{ cookie.severity|upper }}</span>
+                  {% elif cookie.severity == 'medium' %}
+                    <span class="badge bg-warning text-dark rounded-pill flex-shrink-0 ms-2">{{ cookie.severity|upper }}</span>
+                  {% elif cookie.severity == 'low' %}
+                    <span class="badge bg-info text-dark rounded-pill flex-shrink-0 ms-2">{{ cookie.severity|upper }}</span>
+                  {% else %}
+                    <span class="badge bg-secondary rounded-pill flex-shrink-0 ms-2">{{ cookie.severity|upper }}</span>
+                  {% endif %}
+                </div>
+
+                <div class="row g-2 mb-3">
+                  <div class="col-md-3">
+                    <small class="text-uppercase text-muted">Secure</small>
+                    <div class="mt-1">
+                      {% if cookie.secure %}
+                        <span class="badge bg-success rounded-pill">Yes</span>
+                      {% else %}
+                        <span class="badge bg-danger rounded-pill">No</span>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <div class="col-md-3">
+                    <small class="text-uppercase text-muted">HttpOnly</small>
+                    <div class="mt-1">
+                      {% if cookie.httponly %}
+                        <span class="badge bg-success rounded-pill">Yes</span>
+                      {% else %}
+                        <span class="badge bg-danger rounded-pill">No</span>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <div class="col-md-3">
+                    <small class="text-uppercase text-muted">SameSite</small>
+                    <div class="mt-1">
+                      {% if cookie.samesite %}
+                        <span class="badge bg-success rounded-pill">Yes</span>
+                      {% else %}
+                        <span class="badge bg-danger rounded-pill">No</span>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <div class="col-md-3">
+                    <small class="text-uppercase text-muted">SameSite Value</small>
+                    <div class="mt-1">
+                      {% if cookie.samesite_value %}
+                        <span class="badge bg-info text-dark cookie-samesite-value text-break">{{ cookie.samesite_value }}</span>
+                      {% else %}
+                        <span class="badge bg-secondary rounded-pill">N/A</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+
+                {% if cookie.issues %}
+                  <div class="mb-2">
+                    <small class="text-uppercase text-muted"><strong>Issues</strong></small>
+                    <div class="mt-1 text-light text-break">
+                      {% for issue in cookie.issues %}
+                        <div>• {{ issue }}</div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% endif %}
+
+                <div class="mb-2">
+                  <small class="text-uppercase text-muted"><strong>Recommendation</strong></small>
+                    <div class="mt-1 text-light text-break">{{ cookie.recommendation }}</div>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="alert alert-info mb-0" role="alert">
+              No cookies detected.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+{% endblock %}
