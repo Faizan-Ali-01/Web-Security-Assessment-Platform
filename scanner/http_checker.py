@@ -115,6 +115,7 @@ def check_website_url(url: str, timeout: int = 10) -> dict:
             original_scheme == "http" and final_scheme == "https" and bool(response.history)
         ),
         "headers": dict(response.headers),
+        "body": response.text,
         "ok": response.ok,
         "error": None,
     }

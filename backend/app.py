@@ -12,18 +12,7 @@ from database import (
     save_findings,
     save_scan,
 )
-from scanner.headers_checker import analyze_security_headers
-from scanner.http_checker import check_website_url
-from scanner.method_checker import analyze_http_methods
-from scanner.technology_checker import analyze_technologies
-from scanner.ssl_checker import check_ssl_certificate
-from scanner.exposure_checker import analyze_information_exposure
-from scanner.cookie_checker import analyze_cookies
-from scanner.finding_engine import (
-    build_findings,
-    calculate_security_score,
-    get_score_rating,
-)
+from scanner.service import run_scan
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 TEMPLATE_DIR = os.path.join(BASE_DIR, "frontend", "templates")
@@ -107,33 +96,15 @@ def scan():
             recent_scans=get_recent_scans(10),
         )
 
-    result = check_website_url(website_url)
-    scan_succeeded = bool(result.get("ok"))
-
-    if scan_succeeded:
-        method_results = analyze_http_methods(result.get("headers", {}))
-        technology_results = analyze_technologies(result.get("headers", {}))
-        header_results = analyze_security_headers(result.get("headers", {}))
-        exposure_results = analyze_information_exposure(result.get("headers", {}))
-        cookie_results = analyze_cookies(result.get("headers", {}))
-        ssl_result = check_ssl_certificate(website_url)
-        findings = build_findings(result, header_results, ssl_result)
-        security_score = calculate_security_score(findings)
-        score_rating = get_score_rating(security_score)
-    else:
-        method_results = []
-        technology_results = []
-        header_results = []
-        exposure_results = []
-        cookie_results = []
-        ssl_result = {}
-        findings = []
-        security_score = None
-        score_rating = "Failed"
+    scan_result = run_scan(website_url)
+    result = scan_result["http_result"]
+    findings = scan_result["findings"]
+    security_score = scan_result["score"]
+    score_rating = scan_result["rating"]
 
     scan_id = save_scan(
-        target_url=result.get("url") or website_url,
-        final_url=result.get("final_url"),
+        target_url=scan_result["target_url"],
+        final_url=scan_result["final_url"],
         status_code=result.get("status_code"),
         score=security_score,
         rating=score_rating,
@@ -145,12 +116,15 @@ def scan():
         "results.html",
         result=result,
         scan_id=scan_id,
-        method_results=method_results,
-        technology_results=technology_results,
-        header_results=header_results,
-        ssl_result=ssl_result,
-        exposure_results=exposure_results,
-        cookie_results=cookie_results,
+        method_results=scan_result["http_methods"],
+        technology_results=scan_result["technologies"],
+        endpoint_discovery=scan_result["endpoint_discovery"],
+        javascript_analysis=scan_result["javascript_analysis"],
+        cors_results=scan_result["cors_results"],
+        header_results=scan_result["security_headers"],
+        ssl_result=scan_result["ssl_result"],
+        exposure_results=scan_result["information_exposure"],
+        cookie_results=scan_result["cookies"],
         findings=findings,
         security_score=security_score,
         score_rating=score_rating,

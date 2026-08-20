@@ -380,6 +380,123 @@
 
       <div class="card border-0 shadow-sm mt-4">
         <div class="card-body p-4">
+          <h2 class="h5 text-uppercase text-muted mb-4">Endpoint Discovery</h2>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="info-box h-100">
+                <small class="text-uppercase text-muted">Internal URLs</small>
+                {% if endpoint_discovery.internal_urls %}
+                  <ul class="list-unstyled mb-0 mt-2 endpoint-list">
+                    {% for url in endpoint_discovery.internal_urls %}<li class="text-light text-break">{{ url }}</li>{% endfor %}
+                  </ul>
+                {% else %}<div class="mt-2 text-muted">None detected.</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="info-box h-100">
+                <small class="text-uppercase text-muted">External Domains</small>
+                {% if endpoint_discovery.external_domains %}
+                  <ul class="list-unstyled mb-0 mt-2 endpoint-list">
+                    {% for domain in endpoint_discovery.external_domains %}<li class="text-light text-break">{{ domain }}</li>{% endfor %}
+                  </ul>
+                {% else %}<div class="mt-2 text-muted">None detected.</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="info-box h-100">
+                <small class="text-uppercase text-muted">Forms</small>
+                {% if endpoint_discovery.forms %}
+                  <ul class="list-unstyled mb-0 mt-2 endpoint-list">
+                    {% for form in endpoint_discovery.forms %}<li class="text-light text-break">{{ form.method }} &rarr; {{ form.action }}</li>{% endfor %}
+                  </ul>
+                {% else %}<div class="mt-2 text-muted">None detected.</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="info-box h-100">
+                <small class="text-uppercase text-muted">Scripts</small>
+                {% if endpoint_discovery.scripts %}
+                  <ul class="list-unstyled mb-0 mt-2 endpoint-list">
+                    {% for script in endpoint_discovery.scripts %}<li class="text-light text-break">{{ script }}</li>{% endfor %}
+                  </ul>
+                {% else %}<div class="mt-2 text-muted">None detected.</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="info-box">
+                <small class="text-uppercase text-muted">API Candidates</small>
+                {% if endpoint_discovery.api_candidates %}
+                  <ul class="list-unstyled mb-0 mt-2 endpoint-list">
+                    {% for candidate in endpoint_discovery.api_candidates %}<li class="text-light text-break">{{ candidate }}</li>{% endfor %}
+                  </ul>
+                {% else %}<div class="mt-2 text-muted">No API candidates detected.</div>{% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4">
+          <h2 class="h5 text-uppercase text-muted mb-4">JavaScript Endpoint Candidates</h2>
+
+          {% if javascript_analysis.endpoint_candidates %}
+            <div class="endpoint-candidate-list">
+              {% for candidate in javascript_analysis.endpoint_candidates %}
+                <div class="info-box mb-3">
+                  <div class="d-flex justify-content-between align-items-start gap-3">
+                    <div class="text-light text-break">{{ candidate.url }}</div>
+                    <span class="badge bg-secondary flex-shrink-0">Candidate</span>
+                  </div>
+                  <div class="small text-muted mt-2">Source: {{ candidate.source }}</div>
+                  <div class="small text-light text-break mt-1">Evidence: {{ candidate.evidence }}</div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="alert alert-info mb-0" role="alert">
+              No JavaScript endpoint candidates detected.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4">
+          <h2 class="h5 text-uppercase text-muted mb-4">CORS Analysis</h2>
+
+          {% if cors_results %}
+            {% for observation in cors_results %}
+              <div class="card border-0 mb-3 cors-observation-card">
+                <div class="card-body p-3">
+                  <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                    <h3 class="h6 mb-0 text-light text-break">{{ observation.type }}</h3>
+                    {% if observation.severity == 'high' %}
+                      <span class="badge bg-danger rounded-pill flex-shrink-0">{{ observation.severity|upper }}</span>
+                    {% elif observation.severity == 'low' %}
+                      <span class="badge bg-info text-dark rounded-pill flex-shrink-0">{{ observation.severity|upper }}</span>
+                    {% else %}
+                      <span class="badge bg-secondary rounded-pill flex-shrink-0">{{ observation.severity|upper }}</span>
+                    {% endif %}
+                  </div>
+
+                  <div class="mb-2 text-light text-break"><strong>Value:</strong> {{ observation.value }}</div>
+                  <div class="mb-2 text-light text-break"><strong>Description:</strong> {{ observation.description }}</div>
+                  <div class="text-light text-break"><strong>Recommendation:</strong> {{ observation.recommendation }}</div>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="alert alert-info mb-0" role="alert">
+              No CORS configuration detected.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4">
           <h2 class="h5 text-uppercase text-muted mb-4">Security Findings</h2>
 
           {% if findings %}

@@ -179,6 +179,16 @@ body {
   padding: 1rem 1rem 1.2rem;
 }
 
+.cors-observation-card {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.cors-observation-card .badge {
+  flex-shrink: 0;
+}
+
 .finding-card {
   background: rgba(15, 23, 42, 0.55);
   border: 1px solid var(--border);

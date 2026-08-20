@@ -4,14 +4,48 @@ def build_findings(
     http_result: Dict[str, Any],
     header_results: List[Dict[str, Any]],
     ssl_result: Dict[str, Any],
+    cors_results: List[Dict[str, Any]],
 ) -> List[Dict[str, Any]]:
     findings: List[Dict[str, Any]] = []
 
     _add_http_findings(findings, http_result)
     _add_header_findings(findings, header_results)
     _add_ssl_findings(findings, ssl_result)
+    _add_cors_findings(findings, cors_results)
 
     return findings
+
+
+def _add_cors_findings(
+    findings: List[Dict[str, Any]], cors_results: List[Dict[str, Any]]
+) -> None:
+    finding_types = {
+        "Permissive CORS with Credentials": "high",
+        "Wildcard CORS Origin": "low",
+    }
+    existing_types = {
+        finding.get("title")
+        for finding in findings
+        if finding.get("category") == "CORS"
+    }
+
+    for observation in cors_results or []:
+        title = observation.get("type")
+        severity = finding_types.get(title)
+        if not severity or title in existing_types:
+            continue
+
+        findings.append(
+            {
+                "title": title,
+                "category": "CORS",
+                "severity": severity,
+                "description": observation.get("description", ""),
+                "evidence": f"CORS value: {observation.get('value', '')}",
+                "recommendation": observation.get("recommendation", ""),
+            }
+        )
+        existing_types.add(title)
 
 def calculate_security_score(findings: List[Dict[str, Any]]) -> int:
     score = 100
