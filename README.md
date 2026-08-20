@@ -1,685 +1,425 @@
-Web Security Assessment Platform
+# 🛡️ Web Security Assessment Platform
 
-A lightweight, pentester-focused web security assessment and investigation platform built with Flask and Python.
+A lightweight, pentester-focused web security assessment and investigation platform built with **Flask** and **Python**.
 
-The Web Security Assessment Platform is an internship project designed to provide a centralized workspace for performing passive web security assessments, organizing security findings, and investigating HTTP traffic imported from Burp Suite.
+The Web Security Assessment Platform is an internship project designed to provide a centralized workspace for performing passive web security assessments, organizing security findings, and investigating HTTP traffic imported from **Burp Suite**.
 
-The platform combines automated website checks with evidence-based HTTP request/response analysis. It is designed to complement tools such as Burp Suite rather than replace them.
+The platform combines automated website checks with evidence-based HTTP request/response analysis. It is designed to **complement** tools such as Burp Suite rather than replace them.
 
-Table of Contents
+> ⚠️ **Disclaimer:** This project is intended for authorized security testing, educational use, and controlled research environments only. Always obtain explicit permission before assessing systems that you do not own or administer.
 
-Overview
+---
 
-Project Goals
+## Table of Contents
 
-Key Features
+- [Overview](#overview)
+- [Project Goals](#project-goals)
+- [Key Features](#key-features)
+- [System Architecture](#system-architecture)
+- [Assessment Workflow](#assessment-workflow)
+- [Burp Suite Investigation Workflow](#burp-suite-investigation-workflow)
+- [Security Analysis Modules](#security-analysis-modules)
+- [Finding Engine and Security Score](#finding-engine-and-security-score)
+- [Technology Stack](#technology-stack)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+- [Running the Application](#running-the-application)
+- [Using the Platform](#using-the-platform)
+- [Importing Burp Suite Traffic](#importing-burp-suite-traffic)
+- [Database and Persistence](#database-and-persistence)
+- [Web Interface](#web-interface)
+- [Security and Scope](#security-and-scope)
+- [Limitations](#limitations)
+- [Future Improvements](#future-improvements)
+- [Development Notes](#development-notes)
+- [Internship Project Scope](#internship-project-scope)
+- [Conclusion](#conclusion)
 
-System Architecture
+---
 
-Assessment Workflow
-
-Burp Suite Investigation Workflow
-
-Security Analysis Modules
-
-Finding Engine and Security Score
-
-Technology Stack
-
-Project Structure
-
-Installation
-
-Running the Application
-
-Using the Platform
-
-Importing Burp Suite Traffic
-
-Database and Persistence
-
-Web Interface
-
-Security and Scope
-
-Limitations
-
-Future Improvements
-
-Development Notes
-
-Internship Project Scope
-
-Conclusion
-
-Overview
+## Overview
 
 The Web Security Assessment Platform is a Flask-based security analysis application that performs automated checks against a target website and presents the results through a structured web interface.
 
 Instead of relying on a single scanner, the application uses multiple focused analysis modules. Each module examines a different aspect of the target, such as:
 
-HTTP/HTTPS behavior
-
-Security response headers
-
-SSL/TLS certificates
-
-Cookie security
-
-CORS configuration
-
-Information exposure
-
-HTTP methods
-
-Technology indicators
-
-HTML endpoints and resources
-
-JavaScript endpoint candidates
+- HTTP/HTTPS behavior
+- Security response headers
+- SSL/TLS certificates
+- Cookie security
+- CORS configuration
+- Information exposure
+- HTTP methods
+- Technology indicators
+- HTML endpoints and resources
+- JavaScript endpoint candidates
 
 The platform then combines security-relevant observations into standardized findings containing:
 
-Finding title
-
-Severity
-
-Category
-
-Description
-
-Evidence
-
-Recommendation
+- Finding title
+- Severity
+- Category
+- Description
+- Evidence
+- Recommendation
 
 These findings are passed through a scoring engine to calculate an overall security score and rating.
 
-In addition to automated website scanning, the platform provides an investigation workspace where HTTP requests and responses captured through Burp Suite can be imported and analyzed.
+In addition to automated website scanning, the platform provides an **investigation workspace** where HTTP requests and responses captured through Burp Suite can be imported and analyzed.
 
-Project Goals
+---
 
-The primary goals of the project are:
+## Project Goals
 
-Provide a simple interface for performing web security assessments.
+- Provide a simple interface for performing web security assessments.
+- Break security analysis into understandable and maintainable modules.
+- Convert technical observations into actionable security findings.
+- Provide evidence and recommendations for identified issues.
+- Calculate an overall security score from discovered findings.
+- Preserve scan history using a local database.
+- Provide a workspace for analyzing HTTP traffic captured through Burp Suite.
+- Complement existing penetration-testing tools by providing an organized investigation and reporting layer.
 
-Break security analysis into understandable and maintainable modules.
+---
 
-Convert technical observations into actionable security findings.
+## Key Features
 
-Provide evidence and recommendations for identified issues.
+### Automated Website Assessment
 
-Calculate an overall security score from discovered findings.
+The platform accepts a target URL and performs a structured passive assessment, including:
 
-Preserve scan history using a local database.
+- HTTP response inspection
+- HTTPS detection
+- HTTP-to-HTTPS redirect detection
+- Security header analysis
+- SSL/TLS certificate inspection
+- Cookie security analysis
+- CORS analysis
+- HTTP method analysis
+- Information exposure detection
+- Technology identification
+- Endpoint discovery
+- JavaScript endpoint candidate extraction
 
-Provide a workspace for analyzing HTTP traffic captured through Burp Suite.
+### Security Findings Engine
 
-Complement existing penetration-testing tools by providing an organized investigation and reporting layer.
+Security observations can be converted into standardized findings, each containing:
 
-Key Features
+- Title
+- Category
+- Severity
+- Description
+- Evidence
+- Recommendation
 
-Automated Website Assessment
-
-The platform accepts a target URL and performs a structured passive assessment.
-
-The assessment includes:
-
-HTTP response inspection
-
-HTTPS detection
-
-HTTP-to-HTTPS redirect detection
-
-Security header analysis
-
-SSL/TLS certificate inspection
-
-Cookie security analysis
-
-CORS analysis
-
-HTTP method analysis
-
-Information exposure detection
-
-Technology identification
-
-Endpoint discovery
-
-JavaScript endpoint candidate extraction
-
-Security Findings Engine
-
-Security observations can be converted into standardized findings.
-
-Each finding can contain:
-
-Title
-Category
-Severity
-Description
-Evidence
-Recommendation
-
-Supported severity levels include:
-
-HIGH
-MEDIUM
-LOW
-INFO
+Supported severity levels: `HIGH` · `MEDIUM` · `LOW` · `INFO`
 
 The finding engine provides a consistent format for presenting issues across different analysis modules.
 
-Security Scoring
+### Security Scoring
 
 The platform calculates a security score based on generated findings.
 
-The score is represented on a 0–100 scale and is accompanied by a rating such as:
+The score is represented on a **0–100 scale** and accompanied by a rating:
 
-Excellent
-Good
-Fair
-Poor
-Failed
+`Excellent` · `Good` · `Fair` · `Poor` · `Failed`
 
-Importantly, the score is calculated from the findings generated by the finding engine rather than simply counting every observation.
+The score is calculated from the findings generated by the finding engine rather than simply counting every observation. For example, CORS security findings are passed into the finding engine and therefore contribute to the security score when applicable.
 
-For example, CORS security findings are passed into the finding engine and therefore contribute to the security score when applicable.
+### Burp Suite Investigation Workspace
 
-Burp Suite Investigation Workspace
+The platform supports importing raw HTTP requests and responses captured during an authorized assessment:
 
-The platform supports importing raw HTTP requests and responses captured during an authorized assessment.
-
-The workflow is:
-
+```
 Burp Suite
-    |
-    v
+    │
+    ▼
 Export / Copy HTTP Request
-    |
-    v
+    │
+    ▼
 Import into Platform
-    |
-    v
+    │
+    ▼
 Parse HTTP Request
-    |
-    v
+    │
+    ▼
 Analyze Request
-    |
-    v
+    │
+    ▼
 Import HTTP Response
-    |
-    v
+    │
+    ▼
 Analyze Response
-    |
-    v
+    │
+    ▼
 Generate Findings
-    |
-    v
+    │
+    ▼
 Investigation Workspace
+```
 
 This allows the platform to work with real HTTP evidence instead of only performing a direct website scan.
 
-Scan History
+### Scan History
 
-Completed website scans are stored in the database.
+Completed website scans are stored in the database. Users can:
 
-Users can:
+- View previous scans
+- Open detailed reports
+- Review findings
+- Delete individual scans
+- Clear scan history
 
-View previous scans
+### Investigation History
 
-Open detailed reports
+Imported Burp requests are also stored. Users can:
 
-Review findings
+- View imported requests
+- Open individual investigations
+- Review request information
+- Review response information
+- Review generated findings
+- Delete individual requests
+- Clear imported request history
 
-Delete individual scans
+---
 
-Clear scan history
+## System Architecture
 
-Investigation History
+The application follows a modular Flask architecture:
 
-Imported Burp requests are also stored.
-
-Users can:
-
-View imported requests
-
-Open individual investigations
-
-Review request information
-
-Review response information
-
-Review generated findings
-
-Delete individual requests
-
-Clear imported request history
-
-System Architecture
-
-The application follows a modular Flask architecture.
-
-                        +----------------------+
-                        |      Web Browser     |
-                        +----------+-----------+
-                                   |
-                                   v
-                        +----------------------+
-                        |      Flask App       |
-                        |       app.py         |
-                        +----------+-----------+
-                                   |
-                    +--------------+--------------+
-                    |                             |
-                    v                             v
-             Normal Scan                   Burp Investigation
-                    |                             |
-                    v                             v
-             scanner/service.py            burp_parser.py
-                    |                             |
-                    v                             v
-          +---------------------+          request_analyzer.py
-          | Analysis Modules   |                   |
-          +---------------------+                   |
-                    |                               |
-                    +---------------+---------------+
-                                    |
-                                    v
-                           Finding Engine
-                                    |
-                                    v
-                           Security Scoring
-                                    |
-                                    v
-                              Database
-                                    |
-                                    v
+```
+                        ┌──────────────────────┐
+                        │      Web Browser      │
+                        └───────────┬───────────┘
+                                    │
+                                    ▼
+                        ┌──────────────────────┐
+                        │      Flask App        │
+                        │       app.py           │
+                        └───────────┬───────────┘
+                                    │
+                     ┌──────────────┴──────────────┐
+                     │                              │
+                     ▼                              ▼
+              Normal Scan                   Burp Investigation
+                     │                              │
+                     ▼                              ▼
+              scanner/service.py             burp_parser.py
+                     │                              │
+                     ▼                              ▼
+           ┌──────────────────────┐        request_analyzer.py
+           │   Analysis Modules    │                │
+           └───────────┬───────────┘                │
+                     │                              │
+                     └───────────────┬──────────────┘
+                                     │
+                                     ▼
+                            Finding Engine
+                                     │
+                                     ▼
+                            Security Scoring
+                                     │
+                                     ▼
+                               Database
+                                     │
+                                     ▼
                              Jinja Templates
-                                    |
-                                    v
+                                     │
+                                     ▼
                               Web Reports
+```
 
-Assessment Workflow
+---
 
-When a user starts a scan, the following process occurs.
+## Assessment Workflow
 
-1. Target URL Submission
+When a user starts a scan, the following process occurs:
 
-The user enters a target URL from the dashboard.
+### 1. Target URL Submission
 
-Example:
+The user enters a target URL from the dashboard, e.g. `https://example.com`. The Flask application receives the URL through the `/scan` route.
 
-https://example.com
+### 2. HTTP Check
 
-The Flask application receives the URL through the /scan route.
+The URL is passed to the scan service. The first step is the HTTP checker:
 
-2. HTTP Check
-
-The URL is passed to the scan service.
-
-The first step is the HTTP checker:
-
+```python
 http_result = check_website_url(target_url)
+```
 
 This determines whether the target can be reached and collects important response information such as:
 
-Response status
+- Response status
+- Final URL
+- Response headers
+- Response body
+- HTTPS usage
+- Redirect behavior
+- Errors
 
-Final URL
+### 3. Individual Analysis Modules
 
-Response headers
+If the HTTP request succeeds, the response information is passed to specialized analyzers:
 
-Response body
-
-HTTPS usage
-
-Redirect behavior
-
-Errors
-
-3. Individual Analysis Modules
-
-If the HTTP request succeeds, the response information is passed to specialized analyzers.
-
-Examples:
-
+```python
 analyze_security_headers(headers)
 analyze_information_exposure(headers)
 analyze_cookies(headers)
 analyze_cors(headers)
 analyze_http_methods(headers)
 analyze_technologies(headers)
+```
 
 The response body is also analyzed for resources and JavaScript endpoints.
 
-4. Finding Generation
+### 4. Finding Generation
 
 The observations are passed into the finding engine:
 
+```python
 build_findings(
     http_result,
     security_headers,
     ssl_result,
     cors_results,
 )
+```
 
 The finding engine converts relevant security observations into standardized security findings.
 
-5. Security Score
+### 5. Security Score
 
 The generated findings are passed to:
 
+```python
 calculate_security_score(findings)
+```
 
 The resulting score is then converted into a human-readable rating:
 
+```python
 get_score_rating(score)
+```
 
-6. Database Storage
+### 6. Database Storage
 
-The completed assessment is stored in the database.
+The completed assessment is stored in the database, including:
 
-The application stores information such as:
+- Target URL
+- Final URL
+- HTTP status
+- Security score
+- Rating
+- Finding count
+- Scan date
+- Security findings
 
-Target URL
+### 7. Results Page
 
-Final URL
+Finally, Flask passes the collected results to the Jinja template `results.html`, and the browser displays the assessment in separate sections.
 
-HTTP status
+---
 
-Security score
+## Burp Suite Investigation Workflow
 
-Rating
+The Burp integration is intentionally **passive**. The platform does not attempt to replace Burp Suite's proxy, repeater, scanner, or interception capabilities. Instead, Burp provides HTTP evidence and the platform provides an investigation and analysis workspace.
 
-Finding count
+**Request Import** — The user pastes a raw HTTP request into the import interface. The application parses it using `parse_http_request()` and analyzes it using `analyze_imported_request()`.
 
-Scan date
+**Response Import** — If a response is provided, it is parsed using `parse_http_response()` and analyzed using `analyze_imported_response()`. The resulting findings are saved against the imported request.
 
-Security findings
-
-7. Results Page
-
-Finally, Flask passes the collected results to the Jinja template:
-
-results.html
-
-The browser displays the assessment in separate sections.
-
-Burp Suite Investigation Workflow
-
-The Burp integration is intentionally passive.
-
-The platform does not attempt to replace Burp Suite's proxy, repeater, scanner, or interception capabilities.
-
-Instead, Burp provides HTTP evidence and the platform provides an investigation and analysis workspace.
-
-Request Import
-
-The user pastes a raw HTTP request into the import interface.
-
-The application parses it using:
-
-parse_http_request()
-
-The parsed request is then analyzed using:
-
-analyze_imported_request()
-
-Response Import
-
-If a response is provided, it is parsed using:
-
-parse_http_response()
-
-and analyzed using:
-
-analyze_imported_response()
-
-The resulting findings are saved against the imported request.
-
-Investigation Workspace
-
-The imported request can then be opened from the Investigation section.
-
-The workspace allows the user to inspect the captured evidence and generated findings in one place.
+**Investigation Workspace** — The imported request can then be opened from the Investigation section, allowing the user to inspect the captured evidence and generated findings in one place.
 
 This creates a workflow similar to:
 
-Capture evidence
-      ↓
-Import evidence
-      ↓
-Analyze evidence
-      ↓
-Review indicators
-      ↓
-Review findings
-      ↓
-Investigate further in Burp Suite
-
-Security Analysis Modules
-
-The scanner is divided into focused modules.
-
-HTTP Checker
-
-Responsible for the initial website request.
-
-It provides the foundation for the rest of the assessment by collecting:
-
-HTTP status
-
-Response headers
-
-Response body
-
-Final URL
-
-Redirect information
-
-HTTPS information
-
-Error information
-
-Security Headers Analyzer
-
-Examines HTTP response headers for important security-related headers.
-
-Examples include:
-
-Strict-Transport-Security
-
-Content-Security-Policy
-
-X-Content-Type-Options
-
-X-Frame-Options
-
-Referrer-Policy
-
-Permissions-Policy
-
-The module identifies whether expected security controls are present and provides recommendations when appropriate.
-
-SSL/TLS Certificate Inspector
-
-The SSL checker examines the target's certificate when HTTPS is used.
-
-Information can include:
-
-Certificate presence
-
-Subject
-
-Issuer
-
-Valid-from date
-
-Valid-until date
-
-Remaining validity period
-
-Certificate validity state
-
-Information Exposure Checker
-
-Examines response headers for information that may reveal unnecessary implementation details.
-
-Potential information sources can include:
-
-Server information
-
-Framework indicators
-
-Technology/version information
-
-Other exposed response metadata
-
-The purpose is to highlight information that could assist an attacker during reconnaissance.
-
-Cookie Security Checker
-
-Examines cookies for important security attributes.
-
-The platform checks attributes such as:
-
-Secure
-HttpOnly
-SameSite
-
-It reports issues and provides recommendations for improving cookie security.
-
-CORS Analyzer
-
-The CORS analyzer examines response headers related to Cross-Origin Resource Sharing.
-
-It can identify potentially risky configurations such as permissive origin policies.
-
-CORS observations are integrated with the finding engine so relevant security issues can contribute to the overall security score.
-
-HTTP Method Analyzer
-
-Examines HTTP method-related information and identifies advertised or potentially unnecessary methods.
-
-The results are presented with descriptions and recommendations.
-
-Technology Analyzer
-
-Attempts to identify technologies based on observable response information.
-
-Technology indicators can help with reconnaissance and understanding the target's technology stack.
-
-Endpoint Discovery
-
-The endpoint discovery module examines HTML resources and extracts items such as:
-
-Internal URLs
-
-External domains
-
-Forms
-
-Scripts
-
-Stylesheets
-
-Images
-
-Iframes
-
-API candidates
-
-This provides a basic map of the application's exposed web resources.
-
-JavaScript Endpoint Analyzer
-
-The JavaScript analyzer searches available page content for endpoint candidates contained in JavaScript resources.
-
-The results include:
-
-Candidate URL
-
-Source
-
-Evidence
-
-These candidates can provide useful starting points for further authorized investigation.
-
-Finding Engine and Security Score
-
-The finding engine acts as the central security interpretation layer.
-
-Instead of displaying every analyzer observation as a vulnerability, the engine determines which observations represent meaningful security findings.
-
-Conceptually:
-
+```
+Capture evidence → Import evidence → Analyze evidence →
+Review indicators → Review findings → Investigate further in Burp Suite
+```
+
+---
+
+## Security Analysis Modules
+
+| Module | Responsibility |
+|---|---|
+| **HTTP Checker** | Initial website request; collects HTTP status, headers, body, final URL, redirect and HTTPS info, and errors. |
+| **Security Headers Analyzer** | Examines headers such as `Strict-Transport-Security`, `Content-Security-Policy`, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, and `Permissions-Policy`. Identifies missing controls and provides recommendations. |
+| **SSL/TLS Certificate Inspector** | Examines the target's certificate: presence, subject, issuer, valid-from/until dates, remaining validity, and validity state. |
+| **Information Exposure Checker** | Flags headers revealing unnecessary implementation details (server info, framework indicators, technology/version data). |
+| **Cookie Security Checker** | Checks cookie attributes: `Secure`, `HttpOnly`, `SameSite`. Reports issues and recommendations. |
+| **CORS Analyzer** | Examines Cross-Origin Resource Sharing headers and identifies risky configurations (e.g. permissive origin policies). Feeds into the finding engine and security score. |
+| **HTTP Method Analyzer** | Identifies advertised or potentially unnecessary HTTP methods. |
+| **Technology Analyzer** | Attempts to identify technologies based on observable response information. |
+| **Endpoint Discovery** | Extracts internal URLs, external domains, forms, scripts, stylesheets, images, iframes, and API candidates from HTML resources. |
+| **JavaScript Endpoint Analyzer** | Searches page content for endpoint candidates in JavaScript resources (candidate URL, source, evidence). |
+
+---
+
+## Finding Engine and Security Score
+
+The finding engine acts as the central security interpretation layer. Instead of displaying every analyzer observation as a vulnerability, the engine determines which observations represent meaningful security findings.
+
+```
 Analyzer Results
-       |
-       v
+       │
+       ▼
 Finding Engine
-       |
-       +--> Severity
-       +--> Category
-       +--> Description
-       +--> Evidence
-       +--> Recommendation
-       |
-       v
+       │
+       ├──▶ Severity
+       ├──▶ Category
+       ├──▶ Description
+       ├──▶ Evidence
+       └──▶ Recommendation
+       │
+       ▼
 Security Findings
-       |
-       v
+       │
+       ▼
 Security Score
-       |
-       v
-Rating
+       │
+       ▼
+     Rating
+```
 
 This separation makes the system easier to maintain because analysis modules can focus on detection while the finding engine focuses on security interpretation and scoring.
 
-Technology Stack
+---
 
-Backend
+## Technology Stack
 
-Python
+**Backend**
+- Python
+- Flask
 
-Flask
+**Security Analysis**
+- Python HTTP/networking functionality
+- Custom security analysis modules
+- Custom finding engine
+- Burp HTTP request/response parsing
 
-Security Analysis
+**Frontend**
+- HTML5
+- CSS3
+- Bootstrap 5
+- Jinja2 templates
 
-Python HTTP/networking functionality
+**Database**
+- SQLite / local relational database
 
-Custom security analysis modules
+**Development**
+- Git
+- GitHub
+- Visual Studio Code
 
-Custom finding engine
+---
 
-Burp HTTP request/response parsing
-
-Frontend
-
-HTML5
-
-CSS3
-
-Bootstrap 5
-
-Jinja2 templates
-
-Database
-
-SQLite / local relational database
-
-Development
-
-Git
-
-GitHub
-
-Visual Studio Code
-
-Project Structure
+## Project Structure
 
 The exact structure may vary slightly depending on the local development environment, but the main organization follows this pattern:
 
+```
 project/
 │
 ├── backend/
@@ -720,254 +460,161 @@ project/
 │
 ├── README.md
 └── ...
+```
 
-Important Application Files
+### Important Application Files
 
-app.py
+| File | Responsibilities |
+|---|---|
+| `app.py` | Main Flask application. Registers routes, receives user input, calls scanner services, handles Burp imports, retrieves database records, and renders dashboard/reports/investigations/scan results. |
+| `scanner/service.py` | Main orchestration layer for a website scan. Core function: `run_scan(target_url)`. Coordinates analysis modules and produces a combined scan result. |
+| `scanner/finding_engine.py` | Builds standardized findings, assigns severity, calculates the security score, and generates the score rating. |
+| `burp_parser.py` | Parses raw HTTP requests and responses imported from Burp Suite. |
+| `scanner/request_analyzer.py` | Analyzes imported HTTP request/response data and produces investigation indicators/findings. |
+| `database.py` | Handles persistence: DB initialization, saving/retrieving scans and findings, saving imported requests/responses, retrieving investigation history, deleting and clearing records. |
+| `base.html` | Shared Jinja2 layout containing the navigation bar, sidebar, Bootstrap integration, shared CSS, and template blocks. Other templates extend this file instead of duplicating HTML. |
 
-The main Flask application.
+---
 
-Responsibilities include:
+## Installation
 
-Registering routes
-
-Receiving user input
-
-Calling scanner services
-
-Handling Burp imports
-
-Retrieving database records
-
-Passing data to templates
-
-Rendering dashboard, reports, investigations and scan results
-
-scanner/service.py
-
-Acts as the main orchestration layer for a website scan.
-
-The core function is:
-
-run_scan(target_url)
-
-It coordinates the different analysis modules and produces a combined scan result.
-
-scanner/finding_engine.py
-
-Responsible for:
-
-Building standardized findings
-
-Assigning severity
-
-Calculating the security score
-
-Generating the score rating
-
-This module provides a central location for security scoring logic.
-
-burp_parser.py
-
-Responsible for parsing raw HTTP requests and responses imported from Burp Suite.
-
-scanner/request_analyzer.py
-
-Analyzes imported HTTP request and response data and produces investigation indicators/findings.
-
-database.py
-
-Handles application persistence.
-
-It provides functions for:
-
-Database initialization
-
-Saving scans
-
-Saving findings
-
-Retrieving scans
-
-Retrieving findings
-
-Saving imported requests
-
-Saving imported responses
-
-Retrieving investigation history
-
-Deleting records
-
-Clearing history
-
-base.html
-
-The shared Jinja2 layout.
-
-It contains common UI elements such as:
-
-Navigation bar
-
-Sidebar
-
-Bootstrap integration
-
-Shared CSS
-
-Template blocks
-
-Other templates extend this file instead of duplicating the same HTML.
-
-Installation
-
-Requirements
+### Requirements
 
 Recommended environment:
 
-Python 3.x
-pip
-Git
+- Python 3.x
+- pip
+- Git
 
 A virtual environment is recommended.
 
-Clone the Repository
+### Clone the Repository
 
+```bash
 git clone <repository-url>
 cd <project-directory>
+```
 
-Replace <repository-url> and <project-directory> with the appropriate values for your repository.
+Replace `<repository-url>` and `<project-directory>` with the appropriate values for your repository.
 
-Create a Virtual Environment
+### Create a Virtual Environment
 
-Windows
+**Windows**
 
+```bash
 python -m venv venv
 venv\Scripts\activate
+```
 
-Linux/macOS
+**Linux/macOS**
 
+```bash
 python3 -m venv venv
 source venv/bin/activate
+```
 
-Install Dependencies
+### Install Dependencies
 
-If the project contains a requirements.txt file:
+If the project contains a `requirements.txt` file:
 
+```bash
 pip install -r requirements.txt
+```
 
 If dependencies are managed differently, install the packages specified by the project environment.
 
-Running the Application
+---
 
-Start the Flask application using the project's configured entry point.
+## Running the Application
 
-For the current application structure:
+Start the Flask application using the project's configured entry point:
 
+```bash
 python app.py
+```
 
-If app.py is located in the backend directory:
+If `app.py` is located in the `backend` directory:
 
+```bash
 cd backend
 python app.py
+```
 
 The development server will normally be available at:
 
+```
 http://127.0.0.1:5000
+```
 
 Open the address in a web browser.
 
-Using the Platform
+---
 
-1. Dashboard
+## Using the Platform
+
+### 1. Dashboard
 
 The dashboard provides an overview of:
 
-Total scans
+- Total scans
+- Average security score
+- High-severity findings
+- Medium-severity findings
+- Recent scans
+- Recent imported requests
 
-Average security score
+### 2. Start a Security Assessment
 
-High-severity findings
+Navigate to **Dashboard → New Scan**. Enter an authorized target URL and start the assessment. After completion, the results page displays the collected security information.
 
-Medium-severity findings
-
-Recent scans
-
-Recent imported requests
-
-2. Start a Security Assessment
-
-Navigate to:
-
-Dashboard → New Scan
-
-Enter an authorized target URL and start the assessment.
-
-After completion, the results page displays the collected security information.
-
-3. Review Results
+### 3. Review Results
 
 The results page provides sections for:
 
-Security score
+- Security score
+- Overall rating
+- Website details
+- SSL/TLS certificate
+- Information exposure
+- Security headers
+- HTTP methods
+- Technology indicators
+- Endpoint discovery
+- JavaScript endpoint candidates
+- CORS analysis
+- Security findings
+- Cookie security
 
-Overall rating
+### 4. Review Previous Scans
 
-Website details
+Navigate to **Scans** and select a previous assessment to open its stored report.
 
-SSL/TLS certificate
+### 5. Review Reports
 
-Information exposure
+The **Reports** section provides an overview of completed assessments and allows individual reports to be opened.
 
-Security headers
+### 6. Investigation
 
-HTTP methods
+Navigate to **Investigation** to view previously imported HTTP traffic.
 
-Technology indicators
+---
 
-Endpoint discovery
-
-JavaScript endpoint candidates
-
-CORS analysis
-
-Security findings
-
-Cookie security
-
-4. Review Previous Scans
-
-Navigate to:
-
-Scans
-
-Select a previous assessment to open its stored report.
-
-5. Review Reports
-
-The Reports section provides an overview of completed assessments and allows individual reports to be opened.
-
-6. Investigation
-
-Navigate to:
-
-Investigation
-
-This section contains previously imported HTTP traffic.
-
-Importing Burp Suite Traffic
+## Importing Burp Suite Traffic
 
 The platform expects raw HTTP request/response data.
 
 A typical request looks conceptually like:
 
+```http
 GET / HTTP/1.1
 Host: example.com
 User-Agent: ...
 Accept: */*
+```
 
 A response may look like:
 
+```http
 HTTP/1.1 200 OK
 Content-Type: text/html
 Server: ...
@@ -975,49 +622,41 @@ Server: ...
 <html>
 ...
 </html>
+```
 
-The exact request and response should come from an authorized assessment.
+> The exact request and response should come from an **authorized** assessment.
 
-Paste the request into:
+Steps:
 
-Import Burp Request
+1. Paste the request into **Import Burp Request**.
+2. Provide a response as well, if available.
 
-If a response is available, provide it as well.
+The platform will then:
 
-The platform will:
+1. Parse the request.
+2. Analyze request indicators.
+3. Parse the response when supplied.
+4. Analyze response information.
+5. Generate findings where applicable.
+6. Store the investigation.
+7. Make it available through the Investigation workspace.
 
-Parse the request.
+---
 
-Analyze request indicators.
+## Database and Persistence
 
-Parse the response when supplied.
+The application uses a local database to persist assessment information, allowing it to retain information after a scan has finished.
 
-Analyze response information.
+**Stored information includes:**
+- Scans
+- Findings
+- Imported Requests
+- Imported Responses
+- Request Findings
 
-Generate findings where applicable.
+The database layer is separated from the Flask routes and scanner logic for a cleaner architecture:
 
-Store the investigation.
-
-Make it available through the Investigation workspace.
-
-Database and Persistence
-
-The application uses a local database to persist assessment information.
-
-This allows the application to retain information after a scan has finished.
-
-Stored information includes:
-
-Scans
-Findings
-Imported Requests
-Imported Responses
-Request Findings
-
-The database layer is separated from the Flask routes and scanner logic.
-
-This separation provides a cleaner architecture:
-
+```
 Flask Route
     ↓
 Scanner / Business Logic
@@ -1025,198 +664,137 @@ Scanner / Business Logic
 Database Functions
     ↓
 Persistent Storage
+```
 
-Web Interface
+---
 
-The interface uses Bootstrap 5 together with custom CSS.
+## Web Interface
 
-The design uses a dark security-oriented visual theme with:
+The interface uses Bootstrap 5 together with custom CSS. The design uses a dark, security-oriented visual theme with:
 
-Dark navy panels
-
-Blue accent colors
-
-Severity indicators
-
-Responsive layouts
-
-Structured cards
-
-Tables
-
-Investigation sections
-
-Finding cards
+- Dark navy panels
+- Blue accent colors
+- Severity indicators
+- Responsive layouts
+- Structured cards
+- Tables
+- Investigation sections
+- Finding cards
 
 The UI is designed to make technical security information easier to read during an assessment.
 
-Security and Scope
+---
+
+## Security and Scope
 
 This project is intended for:
 
-Authorized security assessments
+- Authorized security assessments
+- Educational purposes
+- Internship demonstrations
+- Security research in controlled environments
+- Testing systems owned by the user or for which permission has been granted
 
-Educational purposes
+**The platform should not be used against systems without authorization.** The application is primarily a passive assessment and investigation platform and does not attempt to perform destructive exploitation.
 
-Internship demonstrations
+---
 
-Security research in controlled environments
-
-Testing systems owned by the user or for which permission has been granted
-
-The platform should not be used against systems without authorization.
-
-The application is primarily a passive assessment and investigation platform. It does not attempt to perform destructive exploitation.
-
-Limitations
+## Limitations
 
 The project is intentionally focused on lightweight assessment and investigation rather than being a complete replacement for professional penetration-testing platforms.
 
-Current limitations include:
-
-The scanner does not perform full vulnerability exploitation.
-
-Results depend on information exposed by the target.
-
-Technology detection is indicator-based and may not always be exact.
-
-Endpoint discovery is limited to resources observable from analyzed content.
-
-JavaScript endpoint discovery identifies candidates rather than proving that every candidate is valid or accessible.
-
-CORS analysis is based on observable response configuration.
-
-Security scoring is a project-specific metric and should not be treated as a universal industry risk score.
-
-Burp integration is based on importing HTTP evidence rather than directly controlling Burp Suite.
-
-The platform does not replace manual security testing.
+- The scanner does not perform full vulnerability exploitation.
+- Results depend on information exposed by the target.
+- Technology detection is indicator-based and may not always be exact.
+- Endpoint discovery is limited to resources observable from analyzed content.
+- JavaScript endpoint discovery identifies candidates rather than proving that every candidate is valid or accessible.
+- CORS analysis is based on observable response configuration.
+- Security scoring is a project-specific metric and should not be treated as a universal industry risk score.
+- Burp integration is based on importing HTTP evidence rather than directly controlling Burp Suite.
+- The platform does not replace manual security testing.
 
 These limitations are intentional and keep the project manageable while maintaining a useful security-assessment workflow.
 
-Future Improvements
+---
 
-Potential future development could include:
+## Future Improvements
 
-Advanced HTTP Analysis
+**Advanced HTTP Analysis**
+- Parameter analysis
+- Authentication-state analysis
+- More request/response heuristics
+- Better detection of security misconfigurations
 
-Parameter analysis
+**Advanced Reconnaissance**
+- Deeper JavaScript analysis
+- More extensive endpoint discovery
+- Subdomain enumeration integration
+- Technology fingerprinting improvements
 
-Authentication-state analysis
+**Security Testing**
+- Additional OWASP-focused checks
+- More advanced vulnerability verification
+- Controlled active testing modules
+- Custom payload testing in authorized environments
 
-More request/response heuristics
+**Reporting**
+- PDF report generation
+- Export to JSON/CSV
+- Executive summaries
+- Finding remediation tracking
+- Assessment comparison between scans
 
-Better detection of security misconfigurations
+**Investigation**
+- Request tagging
+- Finding status management
+- Search and filtering
+- Evidence bookmarking
+- Request comparison
+- More advanced Burp Suite integration
 
-Advanced Reconnaissance
+**Platform**
+- User authentication
+- Role-based access control
+- PostgreSQL support
+- Background scan jobs
+- API endpoints
+- Deployment configuration
 
-Deeper JavaScript analysis
+---
 
-More extensive endpoint discovery
+## Development Notes
 
-Subdomain enumeration integration
+The project follows a modular approach. Rather than implementing all security checks inside a single large function, individual responsibilities are separated into modules, e.g.:
 
-Technology fingerprinting improvements
+```
+cookie_checker.py   → Cookie analysis
+cors_checker.py     → CORS analysis
+headers_checker.py  → Security header analysis
+ssl_checker.py       → Certificate analysis
+```
 
-Security Testing
+The central service then coordinates these modules. This approach makes the code easier to understand, test, and extend.
 
-Additional OWASP-focused checks
+### Core Data Flow
 
-More advanced vulnerability verification
-
-Controlled active testing modules
-
-Custom payload testing in authorized environments
-
-Reporting
-
-PDF report generation
-
-Export to JSON/CSV
-
-Executive summaries
-
-Finding remediation tracking
-
-Assessment comparison between scans
-
-Investigation
-
-Request tagging
-
-Finding status management
-
-Search and filtering
-
-Evidence bookmarking
-
-Request comparison
-
-More advanced Burp Suite integration
-
-Platform
-
-User authentication
-
-Role-based access control
-
-PostgreSQL support
-
-Background scan jobs
-
-API endpoints
-
-Deployment configuration
-
-Development Notes
-
-The project follows a modular approach.
-
-Rather than implementing all security checks inside a single large function, individual responsibilities are separated into modules.
-
-For example:
-
-cookie_checker.py
-        ↓
-Cookie analysis
-
-cors_checker.py
-        ↓
-CORS analysis
-
-headers_checker.py
-        ↓
-Security header analysis
-
-ssl_checker.py
-        ↓
-Certificate analysis
-
-The central service then coordinates these modules.
-
-This approach makes the code easier to understand, test and extend.
-
-Core Data Flow
-
-The normal assessment data flow can be summarized as:
-
+```
 Target URL
     ↓
 check_website_url()
     ↓
 HTTP Result
     ↓
-┌─────────────────────────────────────┐
-│ Security Header Analyzer            │
-│ SSL/TLS Checker                     │
-│ Information Exposure Checker        │
-│ Cookie Checker                      │
-│ CORS Analyzer                       │
-│ HTTP Method Analyzer                │
-│ Technology Analyzer                 │
-│ Endpoint Discovery                  │
-│ JavaScript Analyzer                 │
-└─────────────────────────────────────┘
+┌──────────────────────────────────────┐
+│ Security Header Analyzer              │
+│ SSL/TLS Checker                       │
+│ Information Exposure Checker          │
+│ Cookie Checker                        │
+│ CORS Analyzer                         │
+│ HTTP Method Analyzer                  │
+│ Technology Analyzer                   │
+│ Endpoint Discovery                    │
+│ JavaScript Analyzer                   │
+└──────────────────────────────────────┘
     ↓
 build_findings()
     ↓
@@ -1231,169 +809,96 @@ save_findings()
 Jinja2 Templates
     ↓
 Security Report
+```
 
-Jinja2 Template Architecture
+### Jinja2 Template Architecture
 
-The frontend uses Jinja2 templates through Flask.
+The frontend uses Jinja2 templates through Flask. The common layout is defined in `base.html`, and individual pages extend it:
 
-The common layout is defined in:
-
-base.html
-
-Individual pages extend the base template:
-
+```jinja
 {% extends "base.html" %}
+```
 
-Dynamic values are inserted using:
-
-{{ value }}
-
-Conditional logic uses:
-
-{% if condition %}
-{% else %}
-{% endif %}
-
-Loops use:
-
-{% for item in items %}
-{% endfor %}
+Dynamic values are inserted using `{{ value }}`. Conditional logic uses `{% if condition %} ... {% else %} ... {% endif %}`. Loops use `{% for item in items %} ... {% endfor %}`.
 
 This allows Python-generated security data to be rendered into HTML dynamically.
 
-Why the Project Uses a Modular Design
+### Why the Project Uses a Modular Design
 
-A security assessment platform can quickly become difficult to maintain if all checks are implemented in a single file.
+A security assessment platform can quickly become difficult to maintain if all checks are implemented in a single file. The modular architecture separates:
 
-The modular architecture separates:
+```
+HTTP collection → Individual analysis → Finding interpretation →
+Scoring → Persistence → Presentation
+```
 
-HTTP collection
-        ↓
-Individual analysis
-        ↓
-Finding interpretation
-        ↓
-Scoring
-        ↓
-Persistence
-        ↓
-Presentation
+This provides:
 
-This separation provides several advantages:
+- Easier debugging
+- Easier testing
+- Easier feature development
+- Clearer responsibilities
+- Better readability
+- Reduced coupling between components
 
-Easier debugging
+### Project Status
 
-Easier testing
+**Completed**
 
-Easier feature development
+- [x] Flask web application
+- [x] Dashboard
+- [x] Website scanning
+- [x] HTTP analysis
+- [x] Security header analysis
+- [x] SSL/TLS analysis
+- [x] Information exposure analysis
+- [x] Cookie security analysis
+- [x] CORS analysis
+- [x] HTTP method analysis
+- [x] Technology detection
+- [x] Endpoint discovery
+- [x] JavaScript endpoint analysis
+- [x] Security finding engine
+- [x] Security scoring
+- [x] Scan persistence
+- [x] Scan history
+- [x] Detailed scan reports
+- [x] Reports page
+- [x] Burp request parsing
+- [x] Burp response parsing
+- [x] Imported request analysis
+- [x] Imported response analysis
+- [x] Investigation workspace
+- [x] Investigation history
+- [x] Delete/clear functionality
+- [x] Responsive dark-themed interface
 
-Clearer responsibilities
+---
 
-Better readability
+## Internship Project Scope
 
-Reduced coupling between components
-
-Project Status
-
-Completed
-
-Flask web application
-
-Dashboard
-
-Website scanning
-
-HTTP analysis
-
-Security header analysis
-
-SSL/TLS analysis
-
-Information exposure analysis
-
-Cookie security analysis
-
-CORS analysis
-
-HTTP method analysis
-
-Technology detection
-
-Endpoint discovery
-
-JavaScript endpoint analysis
-
-Security finding engine
-
-Security scoring
-
-Scan persistence
-
-Scan history
-
-Detailed scan reports
-
-Reports page
-
-Burp request parsing
-
-Burp response parsing
-
-Imported request analysis
-
-Imported response analysis
-
-Investigation workspace
-
-Investigation history
-
-Delete/clear functionality
-
-Responsive dark-themed interface
-
-Internship Project Scope
-
-This project was developed as an internship project with the objective of applying software engineering, web development and cybersecurity concepts to a practical application.
+This project was developed as an internship project with the objective of applying software engineering, web development, and cybersecurity concepts to a practical application.
 
 The project combines:
 
-Python
-+
-Flask
-+
-Web Security
-+
-HTTP Analysis
-+
-Burp Suite Evidence
-+
-Database Design
-+
-Frontend Development
-+
-Security Reporting
+`Python` + `Flask` + `Web Security` + `HTTP Analysis` + `Burp Suite Evidence` + `Database Design` + `Frontend Development` + `Security Reporting`
 
 The final result is a working security assessment and investigation platform that demonstrates how multiple security-analysis components can be combined into a single application.
 
-Conclusion
+---
 
-The Web Security Assessment Platform provides a structured workflow for lightweight web security assessment and HTTP investigation.
+## Conclusion
 
-Its main strength is the separation between:
+The Web Security Assessment Platform provides a structured workflow for lightweight web security assessment and HTTP investigation. Its main strength is the separation between:
 
-Collection
-Analysis
-Finding Generation
-Scoring
-Persistence
-Presentation
+**Collection → Analysis → Finding Generation → Scoring → Persistence → Presentation**
 
-The platform is not intended to replace professional penetration-testing tools. Instead, it provides a focused environment for organizing security observations, analyzing HTTP evidence, generating understandable findings and maintaining assessment history.
+The platform is not intended to replace professional penetration-testing tools. Instead, it provides a focused environment for organizing security observations, analyzing HTTP evidence, generating understandable findings, and maintaining assessment history.
 
-The project also provides a foundation that can be extended with more advanced reconnaissance, vulnerability verification, reporting and investigation capabilities in the future.
+The project also provides a foundation that can be extended with more advanced reconnaissance, vulnerability verification, reporting, and investigation capabilities in the future.
 
-Disclaimer
+---
 
-This project is intended for authorized security testing, educational use and controlled research environments only.
+### Disclaimer
 
-Always obtain explicit permission before assessing systems that you do not own or administer.
+This project is intended for authorized security testing, educational use, and controlled research environments only. **Always obtain explicit permission before assessing systems that you do not own or administer.**
