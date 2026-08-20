@@ -47,7 +47,7 @@
     </div>
   </div>
 
-  <section class="card mb-4">
+  <section id="new-assessment" class="card mb-4">
     <div class="card-body p-4">
       <h2 class="h5 text-uppercase text-muted mb-3">Start New Security Assessment</h2>
       <form method="post" action="{{ url_for('scan') }}">
@@ -69,6 +69,26 @@
           </div>
         </div>
       </form>
+    </div>
+  </section>
+
+  <section class="card investigation-card mb-4">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 class="h5 text-uppercase text-muted mb-1">Investigation</h2>
+          <p class="text-muted mb-0">Imported Burp evidence for passive request analysis.</p>
+        </div>
+        <div class="h3 text-light mb-0">{{ imported_request_count }}</div>
+      </div>
+      {% if recent_requests %}
+        <div class="table-responsive mb-3">
+          <table class="table table-sm align-middle mb-0"><thead><tr><th>Method</th><th>Request</th><th>Indicators</th><th></th></tr></thead><tbody>
+            {% for item in recent_requests %}<tr><td><span class="badge bg-secondary">{{ item.method }}</span></td><td class="text-light text-break">{{ item.host }}{{ item.path }}</td><td>{{ item.indicators|length }}</td><td class="text-end"><a href="{{ url_for('view_request', request_id=item.id) }}" class="btn btn-outline-light btn-sm">View</a></td></tr>{% endfor %}
+          </tbody></table>
+        </div>
+      {% else %}<div class="alert alert-info mb-3">No imported requests yet.</div>{% endif %}
+      <div class="d-flex gap-2"><a href="{{ url_for('requests_history') }}" class="btn btn-outline-light">Open Investigation Workspace</a><a href="{{ url_for('import_request') }}" class="btn btn-danger">Import Burp Request</a></div>
     </div>
   </section>
 

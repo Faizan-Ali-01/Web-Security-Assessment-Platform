@@ -83,6 +83,21 @@ body {
   background-color: transparent;
 }
 
+.investigation-card {
+  background: linear-gradient(180deg, rgba(17, 31, 46, 0.96) 0%, rgba(12, 23, 35, 0.96) 100%);
+}
+
+.investigation-card .table,
+.investigation-card .table thead,
+.investigation-card .table tbody,
+.investigation-card .table tr,
+.investigation-card .table th,
+.investigation-card .table td {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--text-primary);
+  background-color: transparent;
+}
+
 .card {
   background: linear-gradient(180deg, rgba(17, 31, 46, 0.96) 0%, rgba(12, 23, 35, 0.96) 100%);
   border: 1px solid var(--border);
@@ -142,7 +157,16 @@ body {
 
 .table {
   margin-bottom: 0;
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--text-primary);
   color: var(--text-primary);
+  background-color: transparent;
+}
+
+.table tbody,
+.table tr,
+.table td {
+  background-color: transparent;
 }
 
 .table thead th {
@@ -177,6 +201,42 @@ body {
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1rem 1rem 1.2rem;
+}
+
+.import-textarea {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.875rem;
+  min-height: 14rem;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.evidence-code {
+  background: rgba(2, 6, 23, 0.72);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-primary);
+  max-height: 24rem;
+  min-height: 4rem;
+  overflow: auto;
+  padding: 1rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.response-code {
+  max-height: 30rem;
+}
+
+.investigation-tabs .nav-link {
+  color: var(--text-muted);
+}
+
+.investigation-tabs .nav-link.active,
+.investigation-tabs .nav-link:hover {
+  background: rgba(59, 130, 246, 0.18);
+  color: #ffffff;
 }
 
 .cors-observation-card {

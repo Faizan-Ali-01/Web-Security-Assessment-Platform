@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Request #{{ request_data.id }} | Web Security Assessment Platform{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-2"><span class="badge bg-info text-dark">{{ request_data.method }}</span><span class="text-muted">Request #{{ request_data.id }}</span></div>
+      <h1 class="h4 text-light text-break mb-1">{{ request_data.url }}</h1>
+      <p class="text-muted mb-0">{{ request_data.http_version }} | {{ request_data.created_at }}</p>
+    </div>
+    <a href="{{ url_for('requests_history') }}" class="btn btn-outline-light">Back to Workspace</a>
+  </div>
+
+  <ul class="nav nav-pills investigation-tabs mb-4" role="tablist">
+    <li class="nav-item"><a class="nav-link active" href="#overview">Overview</a></li>
+    <li class="nav-item"><a class="nav-link" href="#request">Request</a></li>
+    <li class="nav-item"><a class="nav-link" href="#response">Response</a></li>
+    <li class="nav-item"><a class="nav-link" href="#parameters">Parameters</a></li>
+    <li class="nav-item"><a class="nav-link" href="#analysis">Analysis</a></li>
+    <li class="nav-item"><a class="nav-link" href="#findings">Findings</a></li>
+  </ul>
+
+  <section id="overview" class="card mb-4">
+    <div class="card-body p-4">
+      <h2 class="h5 text-uppercase text-muted mb-3">Overview</h2>
+      <div class="row g-3">
+        <div class="col-md-3"><div class="info-box h-100"><small class="text-uppercase text-muted">Host</small><div class="mt-2 text-light text-break">{{ request_data.host or 'N/A' }}</div></div></div>
+        <div class="col-md-3"><div class="info-box h-100"><small class="text-uppercase text-muted">Path</small><div class="mt-2 text-light text-break">{{ request_data.path or '/' }}</div></div></div>
+        <div class="col-md-3"><div class="info-box h-100"><small class="text-uppercase text-muted">Content Type</small><div class="mt-2 text-light text-break">{{ request_data.content_type or 'N/A' }}</div></div></div>
+        <div class="col-md-3"><div class="info-box h-100"><small class="text-uppercase text-muted">Indicators</small><div class="mt-2 text-light">{{ request_data.indicators|length }}</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="request" class="card mb-4">
+    <div class="card-body p-4">
+      <h2 class="h5 text-uppercase text-muted mb-3">Request</h2>
+      <h3 class="h6 text-light">Headers</h3>
+      <div class="table-responsive mb-4">
+        <table class="table table-sm align-middle mb-0"><thead><tr><th>Header</th><th>Value</th></tr></thead><tbody>
+          {% for name, value in request_data.headers.items() %}<tr><td class="text-light">{{ name }}</td><td class="text-light text-break">{{ value }}</td></tr>{% endfor %}
+        </tbody></table>
+      </div>
+      <h3 class="h6 text-light">Body</h3>
+      <pre class="evidence-code">{{ request_data.body or '(empty)' }}</pre>
+    </div>
+  </section>
+
+  <section id="response" class="card mb-4">
+    <div class="card-body p-4">
+      <h2 class="h5 text-uppercase text-muted mb-3">Response</h2>
+      {% if response_data %}
+        <div class="row g-3 mb-4">
+          <div class="col-md-4"><div class="info-box"><small class="text-uppercase text-muted">Status Code</small><div class="mt-2 text-light">{{ response_data.status_code }}</div></div></div>
+          <div class="col-md-4"><div class="info-box"><small class="text-uppercase text-muted">HTTP Version</small><div class="mt-2 text-light">{{ response_data.http_version }}</div></div></div>
+          <div class="col-md-4"><div class="info-box"><small class="text-uppercase text-muted">Content Type</small><div class="mt-2 text-light text-break">{{ response_data.content_type or 'N/A' }}</div></div></div>
+        </div>
+        <h3 class="h6 text-light">Headers</h3>
+        <div class="table-responsive mb-4"><table class="table table-sm align-middle mb-0"><thead><tr><th>Header</th><th>Value</th></tr></thead><tbody>
+          {% for name, value in response_data.headers.items() %}<tr><td class="text-light">{{ name }}</td><td class="text-light text-break">{{ value }}</td></tr>{% endfor %}
+        </tbody></table></div>
+        <h3 class="h6 text-light">Body</h3>
+        <pre class="evidence-code response-code">{{ response_data.body or '(empty)' }}</pre>
+      {% else %}<div class="alert alert-secondary mb-0">No response was imported with this request.</div>{% endif %}
+    </div>
+  </section>
+
+  <section id="parameters" class="card mb-4">
+    <div class="card-body p-4">
+      <h2 class="h5 text-uppercase text-muted mb-3">Parameters</h2>
+      {% if request_data.parameters %}
+        <div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Parameter</th><th>Location</th><th>Value</th><th>Indicator</th></tr></thead><tbody>
+          {% for parameter in request_data.parameters %}<tr><td class="text-light text-break">{{ parameter.name }}</td><td class="text-light">{{ parameter.location }}</td><td class="text-light text-break">{{ parameter.masked_value }}</td><td>{% if parameter.sensitive == 'true' %}<span class="badge bg-warning text-dark">Interesting</span>{% else %}<span class="text-muted">Review</span>{% endif %}</td></tr>{% endfor %}
+        </tbody></table></div>
+      {% else %}<div class="alert alert-info mb-0">No parameters detected.</div>{% endif %}
+    </div>
+  </section>
+
+  <section id="analysis" class="card mb-4">
+    <div class="card-body p-4">
+      <h2 class="h5 text-uppercase text-muted mb-3">Interesting Observations</h2>
+      {% if request_data.indicators %}
+        {% for item in request_data.indicators %}<article class="finding-card mb-3"><div class="d-flex justify-content-between gap-3"><h3 class="h6 text-light">{{ item.title }}</h3><span class="badge bg-secondary flex-shrink-0">INFO</span></div><div class="small text-muted mb-2">{{ item.category }}</div><div class="text-light text-break">{{ item.description }}</div><div class="small text-light text-break mt-2"><strong>Evidence:</strong> {{ item.evidence }}</div><div class="small text-light text-break mt-2"><strong>Recommendation:</strong> {{ item.recommendation }}</div></article>{% endfor %}
+      {% else %}<div class="alert alert-info mb-0">No request observations detected.</div>{% endif %}
+
+      {% if response_data and response_data.analysis %}
+        <h3 class="h6 text-uppercase text-muted mt-4 mb-3">Response Analysis</h3>
+        {% for item in response_data.analysis.information_exposure %}<article class="finding-card mb-3"><h4 class="h6 text-light">{{ item.header }}</h4><div class="text-light text-break">{{ item.description }}</div></article>{% endfor %}
+        {% for item in response_data.analysis.cors_results %}<article class="finding-card mb-3"><div class="d-flex justify-content-between gap-3"><h4 class="h6 text-light">{{ item.type }}</h4><span class="badge bg-secondary flex-shrink-0">{{ item.severity|upper }}</span></div><div class="text-light text-break">{{ item.description }}</div></article>{% endfor %}
+        {% for item in response_data.analysis.technologies %}<article class="finding-card mb-3"><h4 class="h6 text-light">{{ item.technology }}</h4><div class="text-light text-break">{{ item.description }}</div></article>{% endfor %}
+      {% endif %}
+    </div>
+  </section>
+
+  <section id="findings" class="card">
+    <div class="card-body p-4">
+      <h2 class="h5 text-uppercase text-muted mb-3">Security Findings</h2>
+      {% if findings %}
+        {% for finding in findings %}<article class="finding-card mb-3"><div class="d-flex justify-content-between gap-3"><h3 class="h6 text-light">{{ finding.title }}</h3><span class="badge {% if finding.severity == 'high' %}bg-danger{% elif finding.severity == 'medium' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} flex-shrink-0">{{ finding.severity|upper }}</span></div><div class="small text-muted mb-2">{{ finding.category }}</div><div class="text-light text-break">{{ finding.description }}</div><div class="small text-light text-break mt-2"><strong>Evidence:</strong> {{ finding.evidence }}</div><div class="small text-light text-break mt-2"><strong>Recommendation:</strong> {{ finding.recommendation }}</div></article>{% endfor %}
+      {% else %}<div class="alert alert-success mb-0">No imported-response security findings.</div>{% endif %}
+    </div>
+  </section>
+{% endblock %}

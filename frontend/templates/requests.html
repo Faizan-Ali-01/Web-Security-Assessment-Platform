@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Investigation Workspace | Web Security Assessment Platform{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 mb-1 text-light">Investigation Workspace</h1>
+      <p class="text-muted mb-0">Review imported Burp request evidence.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <form method="post" action="{{ url_for('clear_requests_route') }}" onsubmit="return confirm('Clear all imported requests and responses?');">
+        <button type="submit" class="btn btn-outline-danger">Clear Imported Requests</button>
+      </form>
+      <a href="{{ url_for('import_request') }}" class="btn btn-danger">Import Burp Request</a>
+    </div>
+  </div>
+
+  <section class="card recent-scans-card">
+    <div class="card-body p-4">
+      {% if requests %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>ID</th><th>Method</th><th>Host</th><th>Path</th><th>Status</th><th>Created</th><th>Interesting Indicators</th><th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in requests %}
+                <tr>
+                  <td>{{ item.id }}</td>
+                  <td><span class="badge bg-secondary">{{ item.method }}</span></td>
+                  <td class="text-break">{{ item.host or 'N/A' }}</td>
+                  <td class="text-break">{{ item.path or '/' }}</td>
+                  <td>{{ item.response_status if item.response_status is defined else 'N/A' }}</td>
+                  <td>{{ item.created_at }}</td>
+                  <td>{{ item.indicators|length }}</td>
+                  <td class="text-end">
+                    <div class="d-flex justify-content-end gap-2">
+                      <a href="{{ url_for('view_request', request_id=item.id) }}" class="btn btn-outline-light btn-sm">View</a>
+                      <form method="post" action="{{ url_for('delete_request_route', request_id=item.id) }}" onsubmit="return confirm('Delete this imported request and its evidence?');">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="alert alert-info mb-0" role="alert">No imported requests yet. Import a Burp request to begin an investigation.</div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

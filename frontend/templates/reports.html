@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Reports | Web Security Assessment Platform{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-1 text-light">Security Reports</h1>
+        <p class="text-muted mb-0">
+            Review completed security assessments and their findings.
+        </p>
+    </div>
+</div>
+
+<section class="card">
+    <div class="card-body p-4">
+
+        <h2 class="h5 text-uppercase text-muted mb-4">
+            Available Scan Reports
+        </h2>
+
+        {% if scans %}
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Target</th>
+                        <th>Score</th>
+                        <th>Rating</th>
+                        <th>Findings</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for scan in scans %}
+
+                    <tr>
+
+                        <td class="text-light text-break">
+                            {{ scan.target_url }}
+                        </td>
+
+                        <td>
+                            {% if scan.score is not none %}
+                                <span class="fw-semibold">
+                                    {{ scan.score }}/100
+                                </span>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if scan.rating == "Excellent" %}
+                                <span class="badge bg-success rounded-pill">
+                                    {{ scan.rating }}
+                                </span>
+
+                            {% elif scan.rating == "Good" %}
+                                <span class="badge bg-info rounded-pill">
+                                    {{ scan.rating }}
+                                </span>
+
+                            {% elif scan.rating == "Fair" %}
+                                <span class="badge bg-warning text-dark rounded-pill">
+                                    {{ scan.rating }}
+                                </span>
+
+                            {% elif scan.rating == "Poor" %}
+                                <span class="badge bg-warning text-dark rounded-pill">
+                                    {{ scan.rating }}
+                                </span>
+
+                            {% elif scan.rating %}
+                                <span class="badge bg-danger rounded-pill">
+                                    {{ scan.rating }}
+                                </span>
+
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {{ scan.finding_count or 0 }}
+                        </td>
+
+                        <td>
+                            {{ scan.scan_date }}
+                        </td>
+
+                        <td class="text-end">
+                            <a
+                                href="{{ url_for('view_scan', scan_id=scan.id) }}"
+                                class="btn btn-outline-light btn-sm"
+                            >
+                                View Report
+                            </a>
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+        </div>
+
+        {% else %}
+
+        <div class="alert alert-info mb-0">
+            No security reports are available yet.
+            Run a security assessment first.
+        </div>
+
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Import Burp Request | Web Security Assessment Platform{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 mb-1 text-light">Import Burp Request</h1>
+      <p class="text-muted mb-0">Store captured traffic as passive investigation evidence.</p>
+    </div>
+    <a href="{{ url_for('requests_history') }}" class="btn btn-outline-light">Investigation Workspace</a>
+  </div>
+
+  {% if error %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endif %}
+
+  <section class="card">
+    <div class="card-body p-4">
+      <form method="post" action="{{ url_for('import_request') }}">
+        <div class="mb-4">
+          <label for="raw-request" class="form-label text-light fw-semibold">Raw HTTP Request</label>
+          <textarea id="raw-request" name="raw_request" class="form-control import-textarea" rows="16" placeholder="Paste raw HTTP request here..." required>{{ raw_request or '' }}</textarea>
+        </div>
+        <div class="mb-4">
+          <label for="raw-response" class="form-label text-light fw-semibold">Raw HTTP Response <span class="text-muted fw-normal">(optional)</span></label>
+          <textarea id="raw-response" name="raw_response" class="form-control import-textarea" rows="12" placeholder="Paste raw HTTP response here...">{{ raw_response or '' }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-danger">Import &amp; Analyze</button>
+      </form>
+    </div>
+  </section>
+{% endblock %}

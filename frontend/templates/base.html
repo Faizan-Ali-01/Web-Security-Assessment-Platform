@@ -25,8 +25,11 @@
 				<aside class="col-lg-2 app-sidebar px-0">
 					<nav class="nav flex-column p-3" aria-label="Primary navigation">
 						<a class="nav-link{% if request.endpoint == 'home' %} active{% endif %}" href="{{ url_for('home') }}">Dashboard</a>
+						<a class="nav-link" href="{{ url_for('home') }}#new-assessment">New Scan</a>
 						<a class="nav-link{% if request.endpoint in ['scans', 'view_scan'] %} active{% endif %}" href="{{ url_for('scans') }}">Scans</a>
-						<a class="nav-link" href="#">Reports</a>
+						<a class="nav-link{% if request.endpoint in ['requests_history', 'view_request', 'investigation'] %} active{% endif %}" href="{{ url_for('requests_history') }}">Investigation</a>
+						<a class="nav-link{% if request.endpoint == 'import_request' %} active{% endif %}" href="{{ url_for('import_request') }}">Import Burp Request</a>
+						<a class="nav-link{% if request.endpoint == 'reports' %} active{% endif %}" href="{{ url_for('reports') }}">Reports</a>
 					</nav>
 				</aside>
 
