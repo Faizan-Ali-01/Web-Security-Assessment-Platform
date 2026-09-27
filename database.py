@@ -6,8 +6,17 @@ from typing import Any, Dict, Iterable, List, Optional
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-INSTANCE_DIR = os.path.join(BASE_DIR, "instance")
-DATABASE_PATH = os.path.join(INSTANCE_DIR, "scans.db")
+
+# Vercel's filesystem is read-only except /tmp, so use /tmp there.
+# Note: /tmp is temporary on Vercel; data resets when the function restarts.
+if os.environ.get("DATABASE_PATH"):
+    DATABASE_PATH = os.environ["DATABASE_PATH"]
+elif os.environ.get("VERCEL"):
+    DATABASE_PATH = "/tmp/scans.db"
+else:
+    DATABASE_PATH = os.path.join(BASE_DIR, "instance", "scans.db")
+
+INSTANCE_DIR = os.path.dirname(DATABASE_PATH)
 
 
 SCHEMA = """
@@ -97,6 +106,22 @@ def init_db() -> None:
     """Create the local database directory and tables if needed."""
     with _get_connection() as connection:
         connection.executescript(SCHEMA)
+        _upgrade_schema(connection)
+
+
+# Columns added after the first release. CREATE TABLE IF NOT EXISTS does not
+# add columns to an existing table, so older scans.db files are upgraded here.
+_ADDED_COLUMNS = {
+    "responses": {"analysis_json": "TEXT NOT NULL DEFAULT '{}'"},
+}
+
+
+def _upgrade_schema(connection: sqlite3.Connection) -> None:
+    for table, columns in _ADDED_COLUMNS.items():
+        existing = {row["name"] for row in connection.execute(f"PRAGMA table_info({table})")}
+        for column, definition in columns.items():
+            if column not in existing:
+                connection.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
 
 
 def save_scan(
